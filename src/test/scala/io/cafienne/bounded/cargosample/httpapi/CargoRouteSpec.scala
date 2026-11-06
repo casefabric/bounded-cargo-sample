@@ -1,15 +1,15 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.httpapi
 
 import java.time.{OffsetDateTime, ZonedDateTime}
 import java.util.UUID
-import akka.event.Logging
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.testkit.ScalatestRouteTest
+import org.apache.pekko.event.Logging
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
@@ -24,12 +24,12 @@ import scala.concurrent.Future
 
 class CargoDeliverySpec extends AnyWordSpec with Matchers with ScalaFutures with ScalatestRouteTest {
 
-  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+  import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import QueriesJsonProtocol._
   import spray.json._
 
-  val logger   = Logging(system, getClass)
-  val cargoId1 = CargoId(UUID.fromString("8CD15DA4-006B-478C-8640-2FA52AA7657E"))
+  val logger         = Logging(system, getClass.getName)
+  val cargoId1       = CargoId(UUID.fromString("8CD15DA4-006B-478C-8640-2FA52AA7657E"))
   val cargoViewItem1 =
     CargoViewItem(cargoId1.idAsString, "Amsterdam", "New York", OffsetDateTime.parse("2018-01-01T12:25:38+01:00"))
   val metadata = CargoCommandMetaData(OffsetDateTime.now, None)
@@ -113,7 +113,7 @@ class CargoDeliverySpec extends AnyWordSpec with Matchers with ScalaFutures with
 
     "give a clear error when the command is unknown" in {
       case class MyHttpCommand(msg: String)
-      implicit val MyHttpCommandFmt = jsonFormat1(MyHttpCommand)
+      implicit val MyHttpCommandFmt: RootJsonFormat[MyHttpCommand] = jsonFormat1(MyHttpCommand.apply)
 
       Post(s"/cargo", MyHttpCommand("will not work").toJson) ~> Route.seal(cargoRoute.routes) ~> check {
         status must be(StatusCodes.BadRequest)

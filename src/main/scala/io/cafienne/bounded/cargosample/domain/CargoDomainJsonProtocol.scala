@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.domain
@@ -14,14 +14,14 @@ import java.time.temporal.ChronoUnit
 
 object CargoDomainJsonProtocol extends DefaultJsonProtocol {
 
-  def jsonEnum[T <: Enumeration](enu: T): JsonFormat[T#Value] =
-    new JsonFormat[T#Value] {
-      def write(obj: T#Value): JsValue = JsString(obj.toString)
+  def jsonEnum[T <: Enumeration](enu: T): JsonFormat[enu.Value] =
+    new JsonFormat[enu.Value] {
+      def write(obj: enu.Value): JsValue = JsString(obj.toString)
 
-      def read(json: JsValue): T#Value =
+      def read(json: JsValue): enu.Value =
         json match {
           case JsString(txt) => enu.withName(txt)
-          case something =>
+          case something     =>
             throw DeserializationException(s"Expected a value from enum $enu instead of $something")
         }
     }
@@ -49,7 +49,7 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
     override def read(json: JsValue): UUID =
       json match {
         case JsString(v) => UUID.fromString(v)
-        case _ =>
+        case _           =>
           deserializationError(s"value $json cannot be deserialized to a UUID")
       }
   }
@@ -60,7 +60,7 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
     override def read(json: JsValue): CargoUserId =
       json match {
         case JsString(v) => CargoUserId(UUID.fromString(v))
-        case _ =>
+        case _           =>
           deserializationError(s"value $json cannot be deserialized to a CargoUserId")
       }
   }
@@ -71,7 +71,7 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
     override def read(json: JsValue): VesselVoyageId =
       json match {
         case JsString(v) => VesselVoyageId(UUID.fromString(v))
-        case _ =>
+        case _           =>
           deserializationError(s"value $json cannot be deserialized to a VesselVoyageId")
       }
   }
@@ -82,14 +82,16 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
     override def read(json: JsValue): CargoId =
       json match {
         case JsString(v) => CargoId(UUID.fromString(v))
-        case _ =>
+        case _           =>
           deserializationError(s"value $json cannot be deserialized to a CargoId")
       }
   }
 
-  implicit val CargoUserContextFmt            = jsonFormat2(CargoUserContext)
-  implicit val CargoCommandMetaDataJsonFormat = jsonFormat3(CargoCommandMetaData)
-  implicit val MetaDataJsonFormat             = jsonFormat3(CargoMetaData.apply)
+  implicit val CargoUserContextFmt: RootJsonFormat[CargoUserContext] = jsonFormat2(CargoUserContext.apply)
+  implicit val CargoCommandMetaDataJsonFormat: RootJsonFormat[CargoCommandMetaData] = jsonFormat3(
+    CargoCommandMetaData.apply
+  )
+  implicit val MetaDataJsonFormat: RootJsonFormat[CargoMetaData] = jsonFormat3(CargoMetaData.apply)
 
   implicit object chargeSessionIdFmt extends RootJsonFormat[TrackingId] {
     override def write(obj: TrackingId): JsValue = JsString(obj.id.toString)
@@ -97,13 +99,15 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
     override def read(json: JsValue): TrackingId =
       json match {
         case JsString(v) => TrackingId(UUID.fromString(v))
-        case _ =>
+        case _           =>
           deserializationError(s"value $json cannot be deserialized to a TrackingId")
       }
   }
 
-  implicit val locationFmt              = jsonFormat1(Location)
-  implicit val deliverySpecificationFmt = jsonFormat3(DeliverySpecification)
+  implicit val locationFmt: RootJsonFormat[Location]                           = jsonFormat1(Location.apply)
+  implicit val deliverySpecificationFmt: RootJsonFormat[DeliverySpecification] = jsonFormat3(
+    DeliverySpecification.apply
+  )
 
   implicit object CargoNotFoundFmt extends RootJsonFormat[CargoNotFound] {
     override def read(json: JsValue): CargoNotFound =
@@ -122,7 +126,7 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
       )
   }
 
-  implicit val planCargoFmt          = jsonFormat4(PlanCargo)
-  implicit val specifyNewDeliveryFmt = jsonFormat3(SpecifyNewDelivery)
+  implicit val planCargoFmt: RootJsonFormat[PlanCargo]                   = jsonFormat4(PlanCargo.apply)
+  implicit val specifyNewDeliveryFmt: RootJsonFormat[SpecifyNewDelivery] = jsonFormat3(SpecifyNewDelivery.apply)
 
 }

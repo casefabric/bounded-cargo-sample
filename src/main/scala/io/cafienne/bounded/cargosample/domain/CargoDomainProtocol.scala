@@ -1,12 +1,12 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.domain
 
 import io.cafienne.bounded.aggregate._
 
-import java.time.{OffsetDateTime, ZonedDateTime}
+import java.time.OffsetDateTime
 import java.util.UUID
 
 import scala.util.control.NoStackTrace
@@ -57,7 +57,7 @@ object CargoDomainProtocol {
 
   case class CargoCommandMetaData(
     timestamp: OffsetDateTime,
-    val userContext: Option[CargoUserContext],
+    userContext: Option[CargoUserContext],
     override val commandId: UUID = UUID.randomUUID()
   ) extends CommandMetaData
 
@@ -160,7 +160,7 @@ object CargoDomainProtocol {
     override def id: String = cargoId.idAsString
   }
 
-  //case class NewRouteSpecified(metaData: CargoMetaData, CargoId: CargoId, routeSpecification: RouteSpecification)
+  // case class NewRouteSpecified(metaData: CargoMetaData, CargoId: CargoId, routeSpecification: RouteSpecification)
   case class NewDeliverySpecified(
     metaData: CargoMetaData,
     cargoId: CargoId,
@@ -184,7 +184,7 @@ object CargoDomainProtocol {
   }
 
   class LoadingFailure(override val msg: String) extends Exception(msg) with CargoDomainException {
-    def this(msg: String, cause: Throwable) {
+    def this(msg: String, cause: Throwable) = {
       this(msg)
       initCause(cause)
     }
@@ -201,7 +201,7 @@ object CargoDomainProtocol {
   }
 
   class CargoNotFound(override val msg: String) extends Exception(msg) with CargoDomainException {
-    def this(msg: String, cause: Throwable) {
+    def this(msg: String, cause: Throwable) = {
       this(msg)
       initCause(cause)
     }

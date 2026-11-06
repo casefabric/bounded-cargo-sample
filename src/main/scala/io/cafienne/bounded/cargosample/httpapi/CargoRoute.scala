@@ -1,22 +1,22 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.httpapi
 
 import java.time.{OffsetDateTime, ZonedDateTime}
-import javax.ws.rs.{Consumes, GET, POST, Path, Produces}
+import jakarta.ws.rs.{Consumes, GET, POST, Path, Produces}
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 
-import javax.ws.rs.core.MediaType
-import akka.actor.ActorSystem
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.StatusCodes
-import akka.event.{Logging, LoggingAdapter}
-import akka.http.scaladsl.server.{PathMatchers, Route}
+import jakarta.ws.rs.core.MediaType
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.event.{Logging, LoggingAdapter}
+import org.apache.pekko.http.scaladsl.server.{PathMatchers, Route}
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.{CargoCommandValidatorsImpl, CargoDomainProtocol}
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{
@@ -37,11 +37,11 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
     extends CargoCommandValidatorsImpl(actorSystem)
     with SprayJsonSupport {
 
-  import akka.http.scaladsl.server.Directives._
+  import org.apache.pekko.http.scaladsl.server.Directives._
   import HttpJsonProtocol._
   import io.cafienne.bounded.cargosample.persistence.CargoDomainEventJsonProtocol._
 
-  val logger: LoggingAdapter = Logging(actorSystem, getClass)
+  val logger: LoggingAdapter = Logging(actorSystem, getClass.getName)
 
   val routes: Route = { getCargo ~ planCargo }
 
@@ -61,7 +61,7 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
       new ApiResponse(responseCode = "204", description = "No content"),
       new ApiResponse(responseCode = "500", description = "Internal server error")
     )
-  ) //, content = classOf[ErrorResponse])  )
+  ) // , content = classOf[ErrorResponse])  )
   @Path("cargo/{cargoId}")
   private def getCargo =
     get {
@@ -69,7 +69,7 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
         val cargoId = CargoId(id)
         cargoQueries.getCargo(cargoId) match {
           case Some(cargoResponse) => complete(StatusCodes.OK -> cargoResponse)
-          case None                => complete(StatusCodes.NotFound -> ErrorResponse(s"Cargo with id $cargoId is not found"))
+          case None => complete(StatusCodes.NotFound -> ErrorResponse(s"Cargo with id $cargoId is not found"))
         }
       }
     }
@@ -94,7 +94,7 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
       ),
       new ApiResponse(responseCode = "500", description = "Internal server error")
     )
-  ) //, content = classOf[ErrorResponse])  )
+  ) // , content = classOf[ErrorResponse])  )
   @Path("cargo")
   private def planCargo =
     post {
@@ -126,7 +126,7 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
               logger.warning("API received a failed Future with {}", err)
               complete(
                 StatusCodes.InternalServerError -> ErrorResponse(
-                  err + Option(err.getCause)
+                  err.toString + Option(err.getCause)
                     .map(t => s" due to ${t.getMessage}")
                     .getOrElse("")
                 )

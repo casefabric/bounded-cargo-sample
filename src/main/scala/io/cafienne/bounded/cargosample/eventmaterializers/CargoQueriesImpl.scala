@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.eventmaterializers
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol
 
 class CargoQueriesImpl(lmdbClient: LmdbClient)(implicit val system: ActorSystem) extends CargoQueries {

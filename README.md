@@ -2,8 +2,9 @@
 
 This sample shows the use of the bounded framework and is based on the Cargo Sample as found in the blue book of Eric Evans.
 
-The application is based on the scala programming language and makes use of the [bounded framework](https://cafienne.io/bounded)
-The bounded framework is built on top of the [Akka](https://akka.io) actor framework.
+The application is written in Scala 3 and makes use of the [bounded framework](https://cafienne.io/bounded) (2.x).
+The bounded framework is built on top of the [Apache Pekko](https://pekko.apache.org) actor framework.
+The build uses sbt 2, which needs Java 17 or later.
 
 This allows the application to be reactive and consists of the following structure:
 
@@ -43,15 +44,19 @@ The package ```io.cafienne.bounded.cargosample``` contains the complete structur
  * ```httpapi``` contains an akka-http DSL based webserver that will expose the service to the outside world.
    The endpoint is documented with Swagger
  * ```materializers``` contains the parts that are constructed based on the stored events, like the query side of the API
- * ```persistence``` contains support for serialization and handling event versions of the stored events
+ * ```persistence``` contains the JSON formats of the stored events, used by the HTTP API to render replies.
+   Stored events are tagged with the aggregate type (`Cargo.Type`) by bounded itself, so no event adapter is needed.
 
 ## Run the application
 
-The ```src/main/resources/application.conf``` is setup to use a file based event store and file based offset store.
+The ```src/main/resources/application.conf``` is setup to use the file based LevelDB event store (```target/journal```,
+with the view offsets next to it in ```target/journal/lmdb_offsets```) and an LMDB based cargo view (```run/cargo```).
 You can start the application by:
 ```bash
 $ sbt run
 ```
+The HTTP API listens on port 8100: ```POST /cargo``` plans a cargo and ```GET /cargo/{cargoId}``` reads it back.
+Delete ```target/journal```, ```target/snapshots``` and ```run``` to start with an empty event store.
 
 ## Cargo Sample of the [Blue Book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215)
 

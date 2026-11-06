@@ -11,15 +11,15 @@
             additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
-    <logger name="akka.persistence" level="info"
+    <logger name="org.apache.pekko.persistence" level="info"
             additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
-    <logger name="akka.io" level="info"
+    <logger name="org.apache.pekko.io" level="info"
             additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
-    <logger name="akka.stream" level="info"
+    <logger name="org.apache.pekko.stream" level="info"
             additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>

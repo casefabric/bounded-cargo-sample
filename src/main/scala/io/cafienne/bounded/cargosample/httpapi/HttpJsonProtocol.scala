@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.httpapi
@@ -19,10 +19,10 @@ object HttpJsonProtocol extends DefaultJsonProtocol {
 
   case class PlanCargo(trackingId: UUID, deliverySpecification: DeliverySpecification)
 
-  implicit val planCargoFmt = jsonFormat2(PlanCargo)
+  implicit val planCargoFmt: RootJsonFormat[PlanCargo] = jsonFormat2(PlanCargo.apply)
 
   case class ErrorResponse(msg: String)
 
-  implicit val errorResponsFmt = jsonFormat1(ErrorResponse)
+  implicit val errorResponsFmt: RootJsonFormat[ErrorResponse] = jsonFormat1(ErrorResponse.apply)
 
 }

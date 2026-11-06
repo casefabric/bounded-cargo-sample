@@ -1,10 +1,7 @@
-addSbtPlugin("com.typesafe.sbt"  % "sbt-native-packager"   % "1.7.0")
-addSbtPlugin("org.scalameta"     % "sbt-scalafmt"          % "2.4.2")
-addSbtPlugin("org.scoverage"     % "sbt-scoverage"         % "1.6.1")
-addSbtPlugin("org.scalastyle"    % "scalastyle-sbt-plugin" % "1.0.0")
-addSbtPlugin("com.eed3si9n"      % "sbt-buildinfo"         % "0.9.0")
-addSbtPlugin("com.timushev.sbt"  % "sbt-updates"           % "0.5.0")
-addSbtPlugin("de.heikoseeberger" % "sbt-header"            % "5.6.0")
-addSbtPlugin("ch.epfl.scala"     % "sbt-scalafix"          % "0.9.19")
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.13")
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
+addSbtPlugin("org.scalameta"  % "sbt-scalafmt"  % "2.6.2")
+addSbtPlugin("org.scoverage"  % "sbt-scoverage" % "2.4.4")
+addSbtPlugin("com.github.sbt" % "sbt-header"    % "5.11.0")
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.7.1")
+// sbt-updates is often also installed as a global plugin (~/.sbt/1.0/plugins); don't fail on an older global version
+libraryDependencySchemes += "com.timushev.sbt" % "sbt-updates" % VersionScheme.Always
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.13.0")
