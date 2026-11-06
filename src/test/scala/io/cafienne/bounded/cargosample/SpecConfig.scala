@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample
@@ -9,19 +9,19 @@ import com.typesafe.config.ConfigFactory
 object SpecConfig {
 
   /*
-  PLEASE NOTE:
-  Currently the https://github.com/dnvriend/akka-persistence-inmemory is NOT working for Aggregate Root tests
-  because it is not possible to use a separate instance writing the events that should be in the event store
-  before you actually create the aggregate root (should replay those stored events) to check execution of a new
-  command.
-  A new configuration that uses the akka bundled inmem storage is added to create a working situation.
+   * Test configuration with the in-memory journal that has a query side (`inmemory-journal`, brought in by
+   * bounded-core), which the projection tests need. Bounded tags every stored event with its aggregate type,
+   * so no event adapter is configured.
+   *
+   * The aggregate root tests do not use this journal: TestableAggregateRoot starts its own actor system on the
+   * Pekko persistence testkit journal.
    */
-  val testConfigDVriendInMem = ConfigFactory.parseString(
+  val testConfig = ConfigFactory.parseString(
     """
-      |      akka {
+      |      pekko {
       |        loglevel = "DEBUG"
       |        stdout-loglevel = "DEBUG"
-      |        loggers = ["akka.testkit.TestEventListener"]
+      |        loggers = ["org.apache.pekko.testkit.TestEventListener"]
       |        actor {
       |           serialize-creators = off
       |           serialize-messages = off
@@ -44,14 +44,6 @@ object SpecConfig {
       |        timefactor = 1
       |      }
       |    }
-      |    inmemory-journal {
-      |      event-adapters {
-      |        cargoTagging = "io.cafienne.bounded.cargosample.persistence.CargoTaggingEventAdapter"
-      |      }
-      |      event-adapter-bindings {
-      |        "io.cafienne.bounded.cargosample.domain.CargoDomainProtocol$CargoDomainEvent" = cargoTagging
-      |      }
-      |    }
       |    inmemory-read-journal {
       |      refresh-interval = "10ms"
       |      max-buffer-size = "1000"
@@ -64,44 +56,4 @@ object SpecConfig {
       |   }
     """.stripMargin
   )
-
-  /*
-   * This configuration works for Aggregate Root Testing. (see above for explanation)
-   */
-  val testConfigAkkaInMem = ConfigFactory.parseString(
-    """
-      |      akka {
-      |        loglevel = "DEBUG"
-      |        stdout-loglevel = "DEBUG"
-      |        loggers = ["akka.testkit.TestEventListener"]
-      |        actor {
-      |           serialize-creators = off
-      |           serialize-messages = off
-      |           serialization-bindings {
-      |             "io.cafienne.bounded.aggregate.DomainEvent" = jackson-json
-      |             // enable below to check if all taskEvents have been serialized without java.io.Serializable
-      |             "java.io.Serializable" = none
-      |           }
-      |        }
-      |      persistence {
-      |       publish-confirmations = on
-      |       publish-plugin-commands = on
-      |       journal {
-      |          plugin = "inmemory-journal"
-      |       }
-      |      }
-      |      test {
-      |        single-expect-default = 10s
-      |        timefactor = 1
-      |      }
-      |    }
-      |
-      |    bounded.eventmaterializers.publish = true
-      |
-      |    bounded.eventmaterializers.offsetstore {
-      |       type = "inmemory"
-      |   }
-    """.stripMargin
-  )
-
 }

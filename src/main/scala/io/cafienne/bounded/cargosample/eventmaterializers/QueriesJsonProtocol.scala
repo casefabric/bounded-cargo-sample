@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.eventmaterializers
@@ -16,6 +16,6 @@ object QueriesJsonProtocol extends DefaultJsonProtocol {
     deliveryDueDate: OffsetDateTime
   )
 
-  implicit val cargoViewItemFmt = jsonFormat4(CargoViewItem)
+  implicit val cargoViewItemFmt: RootJsonFormat[CargoViewItem] = jsonFormat4(CargoViewItem.apply)
 
 }

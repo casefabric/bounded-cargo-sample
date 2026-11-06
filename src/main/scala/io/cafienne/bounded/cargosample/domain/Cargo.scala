@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.domain
 
-import akka.actor._
+import org.apache.pekko.actor._
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.Cargo.CargoAggregateState
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
@@ -21,6 +21,8 @@ class Cargo(
 ) extends AggregateRootActor[CargoAggregateState] {
 
   override def aggregateId: String = cargoId
+
+  override def aggregateType: AggregateType = Cargo.Type
 
   override def handleCommand(command: DomainCommand, state: Option[CargoAggregateState]): Reply = {
     command match {
@@ -62,6 +64,12 @@ class Cargo(
 
 object Cargo {
 
+  /**
+    * The aggregate type: the first part of every persistence id (`cargo|<cargoId>`) and the tag of every
+    * stored event, which is how the event materializers find them. Never rename it without migrating the journal.
+    */
+  val Type: AggregateType = AggregateType("cargo")
+
   case class CarrierMovement(versselVoyageId: VesselVoyageId)
 
   case class CargoAggregateState(
@@ -85,8 +93,6 @@ object Cargo {
     }
   }
 
-  final val aggregateRootTag = "ar-cargo" // used to tag the events and read them
-
 }
 
 /**
@@ -97,5 +103,5 @@ object Cargo {
   */
 class CargoCreator(system: ActorSystem, locations: LocationsProvider) extends AggregateRootCreator {
 
-  override def props(idToCreate: String): Props = Props(classOf[Cargo], idToCreate, locations)
+  override def props(idToCreate: String): Props = Props(new Cargo(idToCreate, locations))
 }

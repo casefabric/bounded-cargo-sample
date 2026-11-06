@@ -1,34 +1,37 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.eventmaterializers
 
-import akka.Done
-import akka.actor.ActorSystem
+import org.apache.pekko.Done
+import org.apache.pekko.actor.ActorSystem
 import io.cafienne.bounded.eventmaterializers.AbstractReplayableEventMaterializer
 import com.typesafe.scalalogging.Logger
+import io.cafienne.bounded.aggregate.AggregateType
 import io.cafienne.bounded.cargosample.domain.Cargo
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoPlanned, NewDeliverySpecified}
-import io.cafienne.bounded.cargosample.eventmaterializers.QueriesJsonProtocol.CargoViewItem
+import io.cafienne.bounded.cargosample.eventmaterializers.QueriesJsonProtocol.{cargoViewItemFmt, CargoViewItem}
+import spray.json._
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.Future
 
-class CargoViewWriter(actorSystem: ActorSystem, lmdbClient: LmdbClient)
+// abstract: the offset store (ReadJournalOffsetStore or OffsetStoreProvider) is mixed in where the writer is created
+abstract class CargoViewWriter(actorSystem: ActorSystem, lmdbClient: LmdbClient)
     extends AbstractReplayableEventMaterializer(actorSystem) {
 
   /**
-    * Tagname used to identify eventstream to listen to
+    * Aggregate type whose events this materializer reads
     */
-  override val tagName: String = Cargo.aggregateRootTag
+  override val aggregateType: AggregateType = Cargo.Type
 
   /**
     * Mapping name of this listener
     */
   override val matMappingName: String = "cargo-view"
 
-  override lazy val logger: Logger = Logger(LoggerFactory.getLogger(CargoViewWriter.this.getClass))
+  override val logger: Logger = Logger(LoggerFactory.getLogger(CargoViewWriter.this.getClass))
 
   override def handleReplayEvent(evt: Any): Future[Done] = handleEvent(evt)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.persistence
@@ -10,8 +10,8 @@ import spray.json._
 object CargoDomainEventJsonProtocol extends DefaultJsonProtocol {
   import io.cafienne.bounded.cargosample.domain.CargoDomainJsonProtocol._
 
-  implicit val cargoPlannedFmt         = jsonFormat4(CargoPlanned)
-  implicit val cargoLoadedFmt          = jsonFormat4(Loaded)
-  implicit val cargoUnloadedFmt        = jsonFormat4(Unloaded)
-  implicit val newDeliverySpecifiedFmt = jsonFormat3(NewDeliverySpecified)
+  implicit val cargoPlannedFmt: RootJsonFormat[CargoPlanned]                 = jsonFormat4(CargoPlanned.apply)
+  implicit val cargoLoadedFmt: RootJsonFormat[Loaded]                        = jsonFormat4(Loaded.apply)
+  implicit val cargoUnloadedFmt: RootJsonFormat[Unloaded]                    = jsonFormat4(Unloaded.apply)
+  implicit val newDeliverySpecifiedFmt: RootJsonFormat[NewDeliverySpecified] = jsonFormat3(NewDeliverySpecified.apply)
 }

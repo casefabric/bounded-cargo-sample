@@ -1,13 +1,12 @@
 /*
- * Copyright (C) 2018-2021  Cafienne B.V.
+ * Copyright (C) 2018-2026  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.domain
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import io.cafienne.bounded.akka.ActorSystemProvider
-import io.cafienne.bounded.akka.persistence.ReadJournalProvider
+import org.apache.pekko.actor.ActorSystem
+import io.cafienne.bounded.pekko.ActorSystemProvider
+import io.cafienne.bounded.pekko.persistence.ReadJournalProvider
 import io.cafienne.bounded.aggregate.ValidateableCommand
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{
   CargoDomainCommand,
@@ -16,7 +15,7 @@ import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{
   SpecifyNewDelivery
 }
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait CargoCommandValidators {
   implicit val PlanCargoValidator: ValidateableCommand[PlanCargo]
@@ -24,12 +23,14 @@ trait CargoCommandValidators {
 }
 
 trait ExistenceChecker extends ActorSystemProvider with ReadJournalProvider {
-  implicit val materializer = ActorMaterializer()
-  implicit val ec           = system.dispatcher
+  implicit val ec: ExecutionContext = system.dispatcher
 
+  /**
+    * A cargo exists when its journal stream (`cargo|<cargoId>`) holds at least one event.
+    */
   def exists[A <: CargoDomainCommand](cmd: A): Future[A] =
     readJournal
-      .currentEventsByPersistenceId(cmd.aggregateRootId, 0, 1)
+      .currentEventsByPersistenceId(Cargo.Type.persistenceId(cmd.aggregateRootId).id, 0, 1)
       .runFold(false)((_, _) => true)
       .flatMap(f =>
         if (f) Future.successful(cmd)
@@ -41,8 +42,8 @@ trait ExistenceChecker extends ActorSystemProvider with ReadJournalProvider {
 
 class CargoCommandValidatorsImpl(actorSystem: ActorSystem) extends CargoCommandValidators {
 
-  implicit val PlanCargoValidator = new PlanCargoValidator()
-  implicit val SpecifyNewDeliveryValidator =
+  implicit val PlanCargoValidator: ValidateableCommand[PlanCargo]                   = new PlanCargoValidator()
+  implicit val SpecifyNewDeliveryValidator: ValidateableCommand[SpecifyNewDelivery] =
     new CargoCommandValidator[SpecifyNewDelivery](actorSystem)
 }
 
